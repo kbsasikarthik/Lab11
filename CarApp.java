@@ -24,18 +24,19 @@ public class CarApp {
 		cars.add(new UsedCar("Chevy","Malibu",2010,12585,106148));
 		
 		
-		String usedOrNew=""; 
-		boolean isValid = false;
-		int userOption=0, carChoice=0;
+		String usedOrNew="", choice="y"; 
+		int menuOption=0, carChoice=0;
 		
-		while(!isValid) {
+		System.out.println("Welcome to the Car dealership!!!\n\n");
+		while(choice.equalsIgnoreCase("y")) {
 			menuOptions(); // list the menu options 
 			try {
 				// get the menu selection 
-				userOption = Validator.getInteger(sc, "Please select an option from the menu:(1,2,3,4,5)  ", 1, 5);
-				if(userOption==1) {
+				menuOption = Validator.getInteger(sc, "Please select an option from the menu:(1,2,3,4,5)  ", 1, 5);
+				sc.nextLine();
+				if(menuOption==1) {
 					listCars(cars); // lists the minimal details of the cars from the ArrayList
-				}else if(userOption==2) {
+				}else if(menuOption==2) {
 					usedOrNew = Validator.getRegExString(sc,"Would you like to add a New or Used car? : ", "new|used");
 					if(usedOrNew.equalsIgnoreCase("new")) {
 						addNewCar(sc,cars); // an instance of Car class created with user input will be added to the ArrayList 
@@ -44,7 +45,7 @@ public class CarApp {
 						addUsedCar(sc,cars);// adds an instance of UsedCar with user entered details into the ArrayList
 					}
 					sc.nextLine();
-				}else if(userOption==3) {
+				}else if(menuOption==3) {
 					listCars(cars);
 					carChoice = Validator.getInteger(sc, "Please pick a car to remove from the list : ");
 					try {
@@ -58,11 +59,15 @@ public class CarApp {
 					} catch (IndexOutOfBoundsException ex) {
 						System.out.println("Invalid choice!");// If the index is out of bounds, this exception is thrown
 					}
-				}else if(userOption ==4) {
+				}else if(menuOption ==4) {
 					listCars(cars);
 					lookUp(sc, cars); // user entered car's details will be shown
 					sc.nextLine();
-				}else if(userOption ==5) {
+				}else if(menuOption ==5) {
+					listCars(cars);
+					replaceCar(sc, cars); // user selected car will be replaced with new details entered by user
+					sc.nextLine();
+				}else if(menuOption ==6) {
 					break;
 				}
 			}catch(InputMismatchException ex) { // catches the InpustMisMatch Exception
@@ -70,8 +75,8 @@ public class CarApp {
 				continue;
 			}
 			// check with the user if wanted to shop again
-			isValid = Validator.continueOrNot(sc,"Do you want to shop again? (y/n): ","[yY]");
 			sc.nextLine();
+			choice = Validator.getRegExString(sc,"Do you want to shop again? (y/n): ","y|Y|n|N");
 		}
 		sc.close();
 		System.out.println("\nThanks for shopping with us!!!");
@@ -82,7 +87,7 @@ public class CarApp {
 	// user defined method to list the menu options
 	private static void menuOptions() {
 		System.out.println("\nMenu Options\n~~~~ ~~~~~~~");
-		System.out.println("1.List Cars\n2.Add a Car\n3.Remove a Car\n4.Lookup car details\n5.Quit\n");
+		System.out.println("1.List Cars\n2.Add a Car\n3.Remove a Car\n4.Lookup details\n5.Replace\n6.Quit\n");
 	}
 	
 	// user defined method to look up details of the car of user's choice 
@@ -93,6 +98,27 @@ public class CarApp {
 				System.out.println(((UsedCar)cars.get(i)).toString());
 			} else if (carChoice==(i+1) && cars.get(i) instanceof Car) {
 				System.out.println("(New) "+cars.get(i).toString());
+			}
+		}
+	}
+	
+	// user defined method to replace details of a car of user's choice 
+	private static void replaceCar(Scanner sc, ArrayList<Car> cars) {
+		int replaceCar=Validator.getInteger(sc,"Please pick a car from the list: ", 1, cars.size());
+		sc.nextLine();
+		System.out.println("Please enter the following details:");
+		String make = Validator.getString(sc, "Make: ");
+		String model =Validator.getString(sc,"Model: ");
+		int year =Validator.getInteger(sc,"Year: ");
+		double price =Validator.getDouble(sc, "Price: ");
+		for(int i=0; i<cars.size();i++) {
+			if(replaceCar==(i+1) && cars.get(i) instanceof UsedCar) {
+				double mileage = Validator.getDouble(sc, "Mileage: ");
+				cars.add(i, new UsedCar(make,model,year,price,mileage));
+				cars.remove(i+1);
+			} else if (replaceCar==(i+1) && cars.get(i) instanceof Car) {
+				cars.add(i, new Car(make,model,year,price));
+				cars.remove(i+1);
 			}
 		}
 	}
